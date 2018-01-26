@@ -176,8 +176,7 @@ public class DevController {
 		// 总记录数
 		page.setAll(devService.totalCount());// int allinfo=devService.totalCount();
 		
-		// 页面大小
-		//int pageSize=Constants.pageSize;
+		
 		
 		// 当前页面
 		if (currentPageNo == null || "".equals(currentPageNo)) {
