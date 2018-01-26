@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper  
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="cn.app.devuser.dao.DevUserMapper">
+    
+    	<!-- 登陆 查找用户名是否存在 -->
+    	<select id="login" resultType="devUser">
+    		SELECT * FROM dev_user WHERE devCode=#{devCode}
+    	</select>
+    	
+    	<!-- 显示全部信息 -->
+    	<select id="appList" resultType="appInfo">
+    		SELECT i.id,i.softwareName,i.aPKName,i.softwareSize,i.downloads,
+    			i.appInfo,i.logoLocPath,i.logoPicPath,i.categoryLevel1,
+    			i.categoryLevel2,i.categoryLevel3,i.`status`,i.supportROM,
+    			i.interfaceLanguage,i.downloads,i.flatformId,
+				(SELECT versionNo FROM app_version WHERE id=i.versionId)AS versionNo,
+				(SELECT valueName FROM data_dictionary WHERE data_dictionary.valueId=i.status AND data_dictionary.typeCode='APP_STATUS')AS statusName,
+				(SELECT valueName FROM data_dictionary WHERE data_dictionary.valueId=i.flatformId AND data_dictionary.typeCode='APP_FLATFORM')AS flatformName,
+				(SELECT categoryName FROM app_category WHERE app_category.id
+								=i.categoryLevel1) AS categoryLevel1Name,
+				(SELECT categoryName FROM app_category WHERE app_category.id 
+								=i.categoryLevel2) AS categoryLevel2Name,
+				(SELECT categoryName FROM app_category WHERE app_category.id
+								=i.categoryLevel3) AS categoryLevel3Name
+			from app_info i 
+    	</select>
+    	
+    	<!-- 获取状态列表 -->
+    	<select id="ddt" resultType="dataDictionary">
+    		SELECT valueName FROM data_dictionary WHERE typeName='APP状态' AND typeCode='APP_STATUS'
+    	</select>
+    	
+    	<!-- 获取所属平台列表  -->
+    	<select id="ddf" resultType="dataDictionary">
+    		SELECT valueName FROM data_dictionary WHERE typeName='用户类型' AND typeCode='USER_TYPE'
+    	</select>
+    	
+    	<!-- APP查询  软件名称 (模糊查询) APP状态  所属平台 一级、二级、三级分类 -->
+    	<select id="apps" resultType="appInfo">
+    		SELECT i.id,i.softwareName,i.aPKName,i.softwareSize,i.downloads,
+    			i.appInfo,i.logoLocPath,i.logoPicPath,i.categoryLevel1,
+    			i.categoryLevel2,i.categoryLevel3,i.`status`,i.supportROM,
+    			i.interfaceLanguage,i.downloads,i.flatformId,
+				(SELECT versionNo FROM app_version WHERE id=i.versionId)AS versionNo,
+				(SELECT valueName FROM data_dictionary WHERE data_dictionary.valueId=i.status 
+						AND data_dictionary.typeCode='APP_STATUS')AS statusName,
+				(SELECT valueName FROM data_dictionary WHERE data_dictionary.valueId=i.flatformId 
+						AND data_dictionary.typeCode='APP_FLATFORM')AS flatformName,
+				(SELECT categoryName FROM app_category WHERE app_category.id
+								=i.categoryLevel1) AS categoryLevel1Name,
+				(SELECT categoryName FROM app_category WHERE app_category.id 
+								=i.categoryLevel2) AS categoryLevel2Name,
+				(SELECT categoryName FROM app_category WHERE app_category.id
+								=i.categoryLevel3) AS categoryLevel3Name
+			from app_info i 
+			<where>
+				<if test="softwareName!=null">
+					and softwareName LIKE CONCAT ('%',#{name},'%')
+				</if>
+				<if test="statusName!=null">
+					and statusName=#{state}
+				</if>
+				<if test="flatformName!=null">
+					and flatformName=#{platform}
+				</if>
+				<if test="categoryLevel1Name!=null">
+					and categoryLevel1Name=#{category1}
+				</if>
+				<if test="categoryLevel2Name!=null">
+					and categoryLevel2Name=#{category2}
+				</if>
+				<if test="categoryLevel3Name!=null">
+					and categoryLevel3Name=#{category3}
+				</if>
+			</where>
+    	</select> 
+    	
+    	<!-- 总记录数 -->
+    	<!-- <select id="totalCount" resultType="int">
+    		SELECT COUNT(*) FROM app_info
+    	</select> -->
+    
+    </mapper>
+    

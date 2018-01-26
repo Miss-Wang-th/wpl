@@ -1,0 +1,30 @@
+package cn.app.dev.service;
+
+import java.util.List;
+
+import cn.app.pojo.AppInfo;
+import cn.app.pojo.DataDictionary;
+import cn.app.pojo.DevUser;
+
+public interface DevService {
+	
+		//登陆 查找用户名是否存在
+		public DevUser login(String devCode);
+		
+		//显示全部信息
+		public List<AppInfo> appList(); 
+		
+		//获取状态列表
+		public List<DataDictionary> ddt();
+		
+		//获取所属平台列表
+		public List<DataDictionary> ddf();
+		
+		//APP查询  软件名称 (模糊查询) APP状态  所属平台 一级、二级、三级分类
+		public List<AppInfo> apps(String name,String state,String platform,String category1,String category2,String category3);
+		
+		//总记录数
+		//public int totalCount();
+		
+
+}

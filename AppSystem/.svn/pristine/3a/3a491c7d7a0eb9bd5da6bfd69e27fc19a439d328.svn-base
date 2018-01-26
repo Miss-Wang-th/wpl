@@ -1,0 +1,122 @@
+package cn.app.controller;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import cn.app.dev.service.DevService;
+import cn.app.pojo.AppInfo;
+import cn.app.pojo.DataDictionary;
+import cn.app.pojo.DevUser;
+
+@RequestMapping("/dev")
+@Controller
+public class DevController  {
+	
+	@Resource 
+	DevService devService;
+	
+
+
+	/**
+	 * 首页
+	 * @return  系统入口
+	 * @author th
+	 */
+	@RequestMapping("/home")
+	protected String login() {
+		return "login";
+	}
+	
+	/**
+	 * 开发用户登陆页面
+	 * @author th
+	 */
+	@RequestMapping("/login")
+	protected ModelAndView handleRequestInternal(HttpServletRequest arg0,
+			HttpServletResponse arg1) throws Exception {
+		return new ModelAndView ("devlogin");
+	}
+	
+	/**
+	 * 登陆验证
+	 * @author th
+	 */
+	@RequestMapping("/dologin")
+	protected String dologin(@RequestParam("devCode") String devCode,@RequestParam("devPassword") 
+			String devPassword,HttpServletRequest request,HttpSession session ) {
+		//System.out.println("用户名："+devCode);
+		DevUser dev=devService.login(devCode);
+		session=request.getSession();
+		if(null!=dev){
+			if(devPassword.equals(dev.getDevPassword())){
+				session.setAttribute("devUserSession", dev);
+				//登陆成功
+				return "developer/main";
+			}else{
+				//登陆失败
+				session.setAttribute("error", "密码不正确！");
+			}
+		}else{
+			//用户名不存在
+			session.setAttribute("error", "用户不存在！");
+		}
+		return "dologin";
+	}
+	
+	/**
+	 * 注销
+	 * @author th
+	 */
+	@RequestMapping("/logout")
+	protected String logout(){
+		return "redirect:home";
+	}
+	
+	/**
+	 * 应用管理--APP维护
+	 * 默认显示全部信息
+	 * @author th
+	 */
+	@RequestMapping("/view")
+	protected String view(HttpServletRequest request,HttpSession session){
+		List<AppInfo> appInfoList=devService.appList();
+		List<DataDictionary> ddt=devService.ddt();
+		List<DataDictionary> ddf=devService.ddf();
+		session=request.getSession();
+		session.setAttribute("appInfoList", appInfoList);
+		session.setAttribute("statusList", ddt);
+		session.setAttribute("flatFormList", ddf);
+		return "developer/appinfolist";
+	}
+	
+	/**
+	 * 查询条件
+	 * 软件名称  APP状态  所属平台  一级分类  二级分类  三级分类
+	 * @author th
+	 */
+	@RequestMapping("/list")
+	protected String list(@RequestParam("querySoftwareName") String querySoftwareName,
+			@RequestParam("queryStatus") String queryStatus,
+			@RequestParam("queryFlatformId") String queryFlatformId,
+			@RequestParam("queryCategoryLevel1") String queryCategoryLevel1,
+			@RequestParam("categorylevel2list") String categorylevel2list,
+			@RequestParam("queryCategoryLevel3") String queryCategoryLevel3,
+			HttpServletRequest request,HttpSession session){
+		List<AppInfo> appInfoList=devService.apps(querySoftwareName, queryStatus, queryFlatformId, queryCategoryLevel1, categorylevel2list, queryCategoryLevel3);
+		session=request.getSession();
+		session.setAttribute("appInfoList", appInfoList);
+		return "developer/appinfolist";
+	}
+
+}
